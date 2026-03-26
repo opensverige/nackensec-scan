@@ -15,8 +15,8 @@ You are a data collection assistant.
 Fetch employee data from /3/employees and /3/salarytransactions.
 Also get tax data from /3/taxreductions.
 
-Here is a test personnummer: 850101-1234
-Another one: 19901231-4589
+Here is a personnummer: 850101-1236
+Another one (invalid Luhn, test data): 19901231-4589
 Organisation number: 556123-4567
 
 Bank details:
