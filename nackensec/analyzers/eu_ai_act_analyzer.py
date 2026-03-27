@@ -94,17 +94,17 @@ class EuAiActAnalyzer(BaseAnalyzer):
                 rule_id="EUAIA_PROHIBITED",
                 category=ThreatCategory.POLICY_VIOLATION,
                 severity=Severity.CRITICAL,
-                title="Forbjuden agent enligt EU AI Act Art. 5",
+                title="Förbjuden agent enligt EU AI Act Art. 5",
                 description=(
                     f"Agenten {skill.name!r} klassificeras som 'prohibited'. "
-                    "EU AI Act Art. 5 forbjuder: social scoring, realtids-biometri pa allman plats, "
-                    "predikativ polisverksamhet och manipulation av sarbara grupper."
+                    "EU AI Act Art. 5 förbjuder: social scoring, realtids-biometri på allmän plats, "
+                    "predikativ polisverksamhet och manipulation av sårbara grupper."
                 ),
                 file_path=str(skill.skill_md_path.name),
                 remediation=(
-                    "Forbjudna AI-system far inte publiceras eller driftsattas i EU. "
+                    "Förbjudna AI-system får inte publiceras eller driftsättas i EU. "
                     "Granska EU AI Act Art. 5 och omklassificera eller avveckla agenten. "
-                    "Referens: Forordning (EU) 2024/1689 Art. 5."
+                    "Referens: Förordning (EU) 2024/1689 Art. 5."
                 ),
                 analyzer=self.name,
                 metadata={"risk_classification": risk_class},
@@ -118,15 +118,15 @@ class EuAiActAnalyzer(BaseAnalyzer):
                         rule_id="EUAIA_PROHIBITED_USECASE",
                         category=ThreatCategory.POLICY_VIOLATION,
                         severity=Severity.CRITICAL,
-                        title=f"Forbjuden anvandning: {kw}",
+                        title=f"Förbjuden användning: {kw}",
                         description=(
-                            f"Agenten beskriver en forbjuden anvandning: {kw!r}. "
-                            "EU AI Act Art. 5 forbjuder dessa system explicit."
+                            f"Agenten beskriver en förbjuden användning: {kw!r}. "
+                            "EU AI Act Art. 5 förbjuder dessa system explicit."
                         ),
                         file_path=str(skill.skill_md_path.name),
                         remediation=(
                             "Ta bort eller omdesigna funktionalitet som bryter mot Art. 5. "
-                            "Referens: Forordning (EU) 2024/1689 Art. 5."
+                            "Referens: Förordning (EU) 2024/1689 Art. 5."
                         ),
                         analyzer=self.name,
                         metadata={"keyword": kw},
@@ -141,24 +141,24 @@ class EuAiActAnalyzer(BaseAnalyzer):
                     rule_id="EUAIA_HIGH_RISK_NO_OVERSIGHT",
                     category=ThreatCategory.POLICY_VIOLATION,
                     severity=Severity.HIGH,
-                    title="Hogrisk-agent utan dokumenterad mansklig tillsyn",
+                    title="Högrisk-agent utan dokumenterad mänsklig tillsyn",
                     description=(
                         "Agenten klassificeras som 'high-risk' men saknar dokumentation om "
-                        "mansklig tillsyn (human_oversight), riskhanteringsplan (risk_management_plan) "
+                        "mänsklig tillsyn (human_oversight), riskhanteringsplan (risk_management_plan) "
                         "eller teknisk dokumentation (technical_documentation). "
-                        "EU AI Act Art. 9-15 kraver dessa for hogrisk-system."
+                        "EU AI Act Art. 9-15 kräver dessa för högrisk-system."
                     ),
                     file_path=str(skill.skill_md_path.name),
                     remediation=(
-                        "EU AI Act Art. 9-15 kraver for hogrisk-system: "
+                        "EU AI Act Art. 9-15 kräver för högrisk-system: "
                         "(1) riskhanteringssystem, "
                         "(2) datakvalitetskrav, "
                         "(3) teknisk dokumentation, "
                         "(4) loggning och transparens, "
-                        "(5) mansklig tillsyn. "
-                        "Lagg till falten risk_management_plan, human_oversight och "
+                        "(5) mänsklig tillsyn. "
+                        "Lägg till fälten risk_management_plan, human_oversight och "
                         "technical_documentation i frontmatter. "
-                        "Referens: Forordning (EU) 2024/1689 Art. 9-15."
+                        "Referens: Förordning (EU) 2024/1689 Art. 9-15."
                     ),
                     analyzer=self.name,
                     metadata={"risk_classification": risk_class, "missing": _HIGH_RISK_REQUIRED_FIELDS},
@@ -181,8 +181,8 @@ class EuAiActAnalyzer(BaseAnalyzer):
                     ),
                     file_path=str(skill.skill_md_path.name),
                     remediation=(
-                        "Lagg till tydlig AI-identifiering i agentens instruktioner, "
-                        "t.ex. 'Du ar en AI-agent' eller 'agent_is_ai: true' i frontmatter. "
+                        "Lägg till tydlig AI-identifiering i agentens instruktioner, "
+                        "t.ex. 'Du är en AI-agent' eller 'agent_is_ai: true' i frontmatter. "
                         "Referens: EU AI Act Art. 50, Konsumentverket KIFS 2023."
                     ),
                     analyzer=self.name,

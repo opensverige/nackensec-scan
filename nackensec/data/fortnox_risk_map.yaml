@@ -62,22 +62,21 @@ tier_3_low:
     Rekommendation: dokumentera dataflödet och säkerställ att
     data inte loggas okrypterat. Referens: GDPR Art. 5(1)(f).
 
-# Keywords that indicate PII protection is in place
+# Keywords that indicate PII protection is in place.
+# Intentionally specific — short substrings like "protect", "mask", "hide"
+# would match phrases like "unprotected", "unmasked", "hide from user" and
+# produce false negatives for tier-1 endpoints.
 protection_keywords:
   - "mask_json"
   - "sveaguard"
   - "redact"
   - "anonymize"
   - "anonymisera"
-  - "mask"
   - "pseudonymize"
   - "pseudonymisera"
-  - "hide"
   - "scrub"
   - "sanitize"
   - "sanitisera"
-  - "protect"
-  - "skydda"
   - "human_approval"
   - "propose_action"
   - "human approval"

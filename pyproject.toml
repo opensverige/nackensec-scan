@@ -186,7 +186,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["skill_scanner"]
+source = ["skill_scanner", "nackensec"]
 omit = [
     "*/tests/*",
     "*/test_*",

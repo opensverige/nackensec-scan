@@ -77,6 +77,26 @@ def main() -> None:
 
         _factory.build_analyzers = _patched_build
 
+    # Wire Swedish output when --lang sv is requested.
+    # Monkey-patch _format_single in Cisco's CLI module so that the default
+    # "summary" format for a single ScanResult is rendered via our Swedish
+    # formatter.  Other formats (json, sarif, html, markdown, table) are
+    # intentionally left in English — machine-readable formats have no locale.
+    if our_args.lang == "sv":
+        import skill_scanner.cli.cli as _cisco_cli
+        from nackensec.output.swedish_formatter import format_scan_result_sv
+
+        _orig_format_single = _cisco_cli._format_single
+
+        def _sv_format_single(fmt, args, result_or_report):  # type: ignore[no-untyped-def]
+            from skill_scanner.core.models import ScanResult
+
+            if fmt == "summary" and isinstance(result_or_report, ScanResult):
+                return format_scan_result_sv(result_or_report)
+            return _orig_format_single(fmt, args, result_or_report)
+
+        _cisco_cli._format_single = _sv_format_single
+
     # Forward to Cisco's main CLI.
     # Replace sys.argv[0] so Cisco's parser sees the right program name.
     sys.argv = ["nackensec-scan"] + remaining
