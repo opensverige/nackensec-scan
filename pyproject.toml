@@ -122,6 +122,7 @@ Changelog = "https://github.com/cisco-ai-defense/skill-scanner/releases"
 skill-scanner = "skill_scanner.cli.cli:main"
 skill-scanner-api = "skill_scanner.api.api_cli:main"
 skill-scanner-pre-commit = "skill_scanner.hooks.pre_commit:main"
+nackensec-scan = "nackensec.cli:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -131,7 +132,7 @@ raw-options.git_describe_command = ["git", "describe", "--dirty", "--tags", "--l
 version-file = "skill_scanner/_version.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["skill_scanner"]
+packages = ["skill_scanner", "nackensec"]
 
 [tool.ruff]
 line-length = 120
