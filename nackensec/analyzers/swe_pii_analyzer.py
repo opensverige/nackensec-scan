@@ -12,7 +12,7 @@ from skill_scanner.core.models import Finding, Severity, Skill, ThreatCategory
 from skill_scanner.core.scan_policy import ScanPolicy
 
 from nackensec.data import SWEDISH_RULES_DIR
-from nackensec.validators import is_valid_personnummer, is_valid_organisationsnummer
+from nackensec.validators import is_valid_personnummer, is_valid_organisationsnummer, normalize_personnummer
 
 
 # Regex patterns for candidate extraction (same semantics as YARA, used for Luhn validation)
@@ -70,6 +70,7 @@ class SwePIIAnalyzer(BaseAnalyzer):
     def __init__(self, policy: ScanPolicy | None = None):
         super().__init__(name="nackensec_swe_pii", policy=policy)
         self._yara_rules = self._load_yara()
+        self._scanner = yara_x.Scanner(self._yara_rules) if self._yara_rules is not None else None
 
     def _load_yara(self) -> yara_x.Rules | None:
         yara_files = list(SWEDISH_RULES_DIR.glob("*.yara"))
@@ -83,10 +84,9 @@ class SwePIIAnalyzer(BaseAnalyzer):
 
     def _yara_matches(self, text: str) -> bool:
         """Return True if YARA finds any Swedish PII pattern in text."""
-        if self._yara_rules is None:
+        if self._scanner is None:
             return False
-        scanner = yara_x.Scanner(self._yara_rules)
-        results = scanner.scan(text.encode("utf-8", errors="replace"))
+        results = self._scanner.scan(text.encode("utf-8", errors="replace"))
         return len(list(results.matching_rules)) > 0
 
     def analyze(self, skill: Skill) -> list[Finding]:
@@ -94,9 +94,6 @@ class SwePIIAnalyzer(BaseAnalyzer):
 
         # Collect all text content to scan
         texts: list[tuple[str, str]] = []  # (content, file_path_label)
-
-        raw_skill = skill.skill_md_path.read_text(encoding="utf-8", errors="replace")
-        texts.append((raw_skill, str(skill.skill_md_path.name)))
 
         for sf in skill.files:
             if sf.file_type in ("binary",):
@@ -124,11 +121,18 @@ class SwePIIAnalyzer(BaseAnalyzer):
         for pattern in _PNR_PATTERNS:
             for m in pattern.finditer(text):
                 candidate = m.group(0)
-                if candidate in seen:
+                normalized = normalize_personnummer(candidate)
+                if normalized is None:
+                    normalized = candidate
+                if normalized in seen:
                     continue
-                seen.add(candidate)
+                seen.add(normalized)
 
-                luhn_ok = is_valid_personnummer(candidate)
+                luhn_ok = is_valid_personnummer(normalized)
+
+                # Skip if this is more likely an organisationsnummer
+                if not luhn_ok and is_valid_organisationsnummer(candidate):
+                    continue
 
                 if luhn_ok:
                     rule_id = "SWE_PII_PNR"
@@ -146,7 +150,7 @@ class SwePIIAnalyzer(BaseAnalyzer):
                     )
 
                 findings.append(Finding(
-                    id=_make_id(rule_id, candidate),
+                    id=_make_id(rule_id, normalized),
                     rule_id=rule_id,
                     category=ThreatCategory.HARDCODED_SECRETS,
                     severity=severity,
@@ -161,7 +165,7 @@ class SwePIIAnalyzer(BaseAnalyzer):
                         "Referens: IMY GDPR Art. 9, Dataskyddsförordningen 2016/679."
                     ),
                     analyzer=self.name,
-                    metadata={"luhn_valid": luhn_ok, "candidate": candidate},
+                    metadata={"luhn_valid": luhn_ok, "candidate": normalized},
                 ))
 
         return findings
