@@ -58,8 +58,16 @@ class FortnoxAnalyzer(BaseAnalyzer):
     """
 
     def __init__(self, policy: ScanPolicy | None = None):
+        import warnings
+
         super().__init__(name="nackensec_fortnox", policy=policy)
-        self._risk_map = _load_risk_map()
+        try:
+            self._risk_map = _load_risk_map()
+        except (FileNotFoundError, yaml.YAMLError) as exc:
+            warnings.warn(
+                f"FortnoxAnalyzer: could not load risk map: {exc}", stacklevel=2
+            )
+            self._risk_map = {}
 
     def analyze(self, skill: Skill) -> list[Finding]:
         # Collect full text corpus
@@ -79,7 +87,7 @@ class FortnoxAnalyzer(BaseAnalyzer):
         protected = _has_protection(full_text, protection_keywords)
 
         findings: list[Finding] = []
-        for tier_key in ("tier_1_critical", "tier_2_high", "tier_3_medium"):
+        for tier_key in ("tier_1_high", "tier_2_medium", "tier_3_low"):
             tier = self._risk_map.get(tier_key, {})
             if not tier:
                 continue
@@ -92,9 +100,9 @@ class FortnoxAnalyzer(BaseAnalyzer):
 
                 if protected:
                     # Protection declared — lower severity by one tier for tier1/2, skip tier3
-                    if tier_key == "tier_3_medium":
+                    if tier_key == "tier_3_low":
                         continue
-                    effective_severity = Severity.LOW if tier_key == "tier_1_critical" else Severity.INFO
+                    effective_severity = Severity.LOW if tier_key == "tier_1_high" else Severity.INFO
                 else:
                     effective_severity = _SEVERITY_MAP.get(tier.get("severity", "MEDIUM"), Severity.MEDIUM)
 
@@ -103,7 +111,11 @@ class FortnoxAnalyzer(BaseAnalyzer):
                     rule_id=tier["rule_id"],
                     category=ThreatCategory.DATA_EXFILTRATION,
                     severity=effective_severity,
-                    title=f"Fortnox {endpoint} utan PII-skydd",
+                    title=(
+                        f"Fortnox {endpoint} — PII-skydd deklarerat (Tier 1 kräver verifiering)"
+                        if protected else
+                        f"Fortnox {endpoint} utan PII-skydd"
+                    ),
                     description=(
                         f"Agenten refererar till Fortnox-endpoint {endpoint!r}. "
                         f"Risk: {tier.get('risk', '')}. "

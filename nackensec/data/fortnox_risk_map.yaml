@@ -2,7 +2,7 @@
 # NäckenSec — opensverige.se
 # Mapping from API endpoints to PII risk tiers.
 
-tier_1_critical:
+tier_1_high:
   rule_id: "FORTNOX_TIER1_UNPROTECTED"
   severity: "HIGH"
   endpoints:
@@ -23,7 +23,7 @@ tier_1_critical:
     (3) explicit PII-hanteringspolicy i agentdefinitionen.
     Referens: GDPR Art. 9, Lönegarantilagen.
 
-tier_2_high:
+tier_2_medium:
   rule_id: "FORTNOX_TIER2_UNPROTECTED"
   severity: "MEDIUM"
   endpoints:
@@ -41,7 +41,7 @@ tier_2_high:
     Kräver: anonymize eller mask_json på kunddata innan visning.
     Referens: GDPR Art. 6, Dataskyddsförordningen.
 
-tier_3_medium:
+tier_3_low:
   rule_id: "FORTNOX_TIER3_UNPROTECTED"
   severity: "LOW"
   endpoints:
