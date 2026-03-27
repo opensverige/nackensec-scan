@@ -1,0 +1,84 @@
+# Fortnox REST API endpoint risk database
+# NäckenSec — opensverige.se
+# Mapping from API endpoints to PII risk tiers.
+
+tier_1_critical:
+  rule_id: "FORTNOX_TIER1_UNPROTECTED"
+  severity: "HIGH"
+  endpoints:
+    - "/3/employees"
+    - "/3/salarytransactions"
+    - "/3/taxreductions"
+    - "/3/vacationdebtbasis"
+  pii_types:
+    - SWE_PNR
+    - SWE_SALARY
+    - SWE_TAX
+    - SWE_BANK
+  risk: "Exponerar personnummer, löner, bankuppgifter och skattedata"
+  remediation: >
+    Tier 1 Fortnox-endpoints innehåller personnummer och lönedata.
+    Kräver: (1) mask_json/redact via SveaGuard på all output,
+    (2) human_approval via propose_action innan write-operationer,
+    (3) explicit PII-hanteringspolicy i agentdefinitionen.
+    Referens: GDPR Art. 9, Lönegarantilagen.
+
+tier_2_high:
+  rule_id: "FORTNOX_TIER2_UNPROTECTED"
+  severity: "MEDIUM"
+  endpoints:
+    - "/3/customers"
+    - "/3/suppliers"
+  pii_types:
+    - SWE_PNR
+    - SWE_NAME
+    - SWE_ADDR
+    - SWE_PHONE
+    - SWE_EMAIL
+  risk: "Privatkunder kan ha personnummer som OrganisationNumber-fält"
+  remediation: >
+    Tier 2 Fortnox-endpoints kan innehålla personnummer för privatkunder.
+    Kräver: anonymize eller mask_json på kunddata innan visning.
+    Referens: GDPR Art. 6, Dataskyddsförordningen.
+
+tier_3_medium:
+  rule_id: "FORTNOX_TIER3_UNPROTECTED"
+  severity: "LOW"
+  endpoints:
+    - "/3/invoices"
+    - "/3/orders"
+    - "/3/offers"
+    - "/3/contracts"
+    - "/3/creditinvoices"
+    - "/3/supplierinvoices"
+  pii_types:
+    - SWE_NAME
+    - SWE_ADDR
+    - SWE_PHONE
+    - SWE_EMAIL
+  risk: "Namn, adresser och kontaktuppgifter"
+  remediation: >
+    Tier 3 Fortnox-endpoints innehåller kontaktuppgifter.
+    Rekommendation: dokumentera dataflödet och säkerställ att
+    data inte loggas okrypterat. Referens: GDPR Art. 5(1)(f).
+
+# Keywords that indicate PII protection is in place
+protection_keywords:
+  - "mask_json"
+  - "sveaguard"
+  - "redact"
+  - "anonymize"
+  - "anonymisera"
+  - "mask"
+  - "pseudonymize"
+  - "pseudonymisera"
+  - "hide"
+  - "scrub"
+  - "sanitize"
+  - "sanitisera"
+  - "protect"
+  - "skydda"
+  - "human_approval"
+  - "propose_action"
+  - "human approval"
+  - "mänskligt godkännande"
