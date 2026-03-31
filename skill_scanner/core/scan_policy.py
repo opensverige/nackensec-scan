@@ -467,6 +467,8 @@ class ScanPolicy:
         users only need to specify the sections they want to override.
         """
         path = Path(path)
+        if path.suffix not in (".yaml", ".yml"):
+            raise ValueError(f"Policy file must have a .yaml or .yml extension (got {path})")
         if not path.exists():
             raise FileNotFoundError(f"Policy file not found: {path}")
 
